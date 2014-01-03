@@ -1,38 +1,26 @@
 package edu.oregonstate.eecs.shp3d;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * Unit test for simple App.
  */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
+public class AppTest {
+	@Rule
+	 public ExpectedException exception = ExpectedException.none();
+
+	@Test
+    public void testChangeExtension() {
+        Assert.assertEquals("asdf.prj", App.changeExtension("asdf.shp", ".prj"));
+        Assert.assertEquals("asdf.prj", App.changeExtension("asdf", ".prj"));
+        
+        exception.expect(IllegalArgumentException.class);
+        Assert.assertEquals("asdf.prj", App.changeExtension("asdf", "prj"));
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
 }
