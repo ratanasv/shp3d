@@ -265,18 +265,18 @@ public class App  {
 
 	public static void main( String[] args ) 
 			throws IOException, NoSuchAuthorityCodeException, FactoryException 
-			{
+	{
 		System.out.println( "shp3d..." );
 		try {
-			ArgumentManager.Init(args);
+			Argument.ArgumentManager.init(args);
 		} catch (ParseException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 
 		File existingSHPFile;
-		if (ArgumentManager.GetInstance().hasOption("shp2d")) {
-			existingSHPFile = new File(ArgumentManager.GetInstance().getOptionValue("shp2d"));
+		if (Argument.SHP_IN.isActive()) {
+			existingSHPFile = new File(Argument.SHP_IN.getValue());
 		} else {
 			existingSHPFile = getExistingShapeFile();
 		}
@@ -292,15 +292,15 @@ public class App  {
 		System.out.println(featureType.toString());
 		System.out.println();
 
-		if (ArgumentManager.GetInstance().hasOption("verbose")) {
+		if (Argument.VERBOSE.isActive()) {
 			printFeaturesAttributes(fsShape);
 			printFeaturesGeometry(fsShape);
 		}
 
 
 		File newSHPFile;
-		if (ArgumentManager.GetInstance().hasOption("shp3d")) {
-			newSHPFile = new File(ArgumentManager.GetInstance().getOptionValue("shp3d"));
+		if (Argument.SHP_OUT.isActive()) {
+			newSHPFile = new File(Argument.SHP_OUT.getValue());
 		} else {
 			newSHPFile = getNewShapeFile(existingSHPFile);
 		}
@@ -308,7 +308,7 @@ public class App  {
 		reprojectToLatLong(featureType, fsShape, newSHPFile);
 
 
-			}
+	}
 
 
 
