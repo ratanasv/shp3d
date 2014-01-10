@@ -15,7 +15,8 @@ enum Argument {
 	HELP("help", "print usage", false), 
 	SHP_IN("shpin", "fully-qualified path (with filename) for the output shapefile", true),
 	SHP_OUT("shpout", "fully-qualified path (with filename) for the input shapefile", true),
-	VERBOSE("verbose", "verbose, duh", false);
+	VERBOSE("verbose", "verbose, duh", false),
+	CONNECT("connect", "connect to DEM server", false);
 
 	final static class ArgumentManager {
 		static void init(String [] args) throws ParseException {

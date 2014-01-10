@@ -12,7 +12,7 @@ import org.junit.rules.ExpectedException;
  */
 public class AppTest {
 	@Rule
-	 public ExpectedException exception = ExpectedException.none();
+	public ExpectedException exception = ExpectedException.none();
 
 	@Test
     public void testChangeExtension() {

@@ -119,23 +119,18 @@ public class App  {
 
 	private static void reprojectToLatLong(final SimpleFeatureType schema,
 			SimpleFeatureCollection featureCollection,
-			File file) 
-			throws NoSuchAuthorityCodeException, FactoryException, IOException 
-	{
+			File file) throws NoSuchAuthorityCodeException, FactoryException, IOException {
+		
 		CoordinateReferenceSystem dataCRS = schema.getCoordinateReferenceSystem();
 		CoordinateReferenceSystem worldCRS = DefaultGeographicCRS.WGS84;
 		boolean lenient = true; // allow for some error due to different datums
 		MathTransform transform = CRS.findMathTransform(dataCRS, worldCRS, lenient);
 
 		DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
-		Map<String, Serializable> create = new HashMap<String, Serializable>();
-		create.put("url", file.toURI().toURL());
-		create.put("create spatial index", Boolean.TRUE);
-		DataStore dataStore = factory.createNewDataStore(create);
+		DataStore dataStore = factory.createNewDataStore(getDataStoreParams(file));
 		SimpleFeatureType featureType = SimpleFeatureTypeBuilder.retype(schema, worldCRS);
 		dataStore.createSchema(featureType);
 		String[] typeNames = dataStore.getTypeNames();
-		SimpleFeatureType wtf = dataStore.getSchema(typeNames[0]);
 
 		Transaction transaction = new DefaultTransaction("Reproject");
 		FeatureWriter<SimpleFeatureType, SimpleFeature> writer =
@@ -220,9 +215,10 @@ public class App  {
 		}
 	}
 
-	private static void copySHPFile(File newSHPFile, final SimpleFeatureType featureType, 
-			SimpleFeatureCollection fsShape) throws IOException 
-			{
+	private static void copySHPFile(File newSHPFile, 
+			final SimpleFeatureType featureType, 
+			SimpleFeatureCollection fsShape) throws IOException {
+
 		ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
 		Map<String, Serializable> params = getDataStoreParams(newSHPFile);
 
@@ -260,7 +256,9 @@ public class App  {
 			System.out.println(typeName + " does not support read/write access");
 			System.exit(1);
 		}
-			}
+	}
+	
+	
 
 
 	public static void main( String[] args ) 
@@ -273,6 +271,13 @@ public class App  {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		
+		if (Argument.CONNECT.isActive()) {
+			new DEMConnection("foo");
+			System.exit(0);
+		}
+		
+		
 
 		File existingSHPFile;
 		if (Argument.SHP_IN.isActive()) {
@@ -288,7 +293,6 @@ public class App  {
 
 		// print out a feature type header and wait for user input
 		SimpleFeatureType featureType = (SimpleFeatureType) source.getSchema();
-		System.out.println("FID\t");
 		System.out.println(featureType.toString());
 		System.out.println();
 
@@ -296,7 +300,6 @@ public class App  {
 			printFeaturesAttributes(fsShape);
 			printFeaturesGeometry(fsShape);
 		}
-
 
 		File newSHPFile;
 		if (Argument.SHP_OUT.isActive()) {
