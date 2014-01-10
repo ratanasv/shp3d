@@ -20,10 +20,13 @@ import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
+import org.geotools.data.shapefile.files.ShpFiles;
+import org.geotools.data.shapefile.shp.ShapefileException;
+import org.geotools.data.shapefile.shp.ShapefileHeader;
+import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -214,51 +217,16 @@ public class App  {
 			iterator.close();
 		}
 	}
-
-	private static void copySHPFile(File newSHPFile, 
-			final SimpleFeatureType featureType, 
-			SimpleFeatureCollection fsShape) throws IOException {
-
-		ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
-		Map<String, Serializable> params = getDataStoreParams(newSHPFile);
-
-		ShapefileDataStore newDataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
-		newDataStore.createSchema(featureType);
-
-		/*
-		 * You can comment out this line if you are using the createFeatureType method (at end of
-		 * class file) rather than DataUtilities.createType
-		 */
-		//newDataStore.forceSchemaCRS(DefaultGeographicCRS.WGS84);
-
-		Transaction transaction = new DefaultTransaction("create");
-
-		String typeName = newDataStore.getTypeNames()[0];
-		SimpleFeatureSource featureSource = newDataStore.getFeatureSource(typeName);
-
-
-		if (featureSource instanceof SimpleFeatureStore) {
-			SimpleFeatureStore featureStore = (SimpleFeatureStore) featureSource;
-
-			featureStore.setTransaction(transaction);
-			try {
-				featureStore.addFeatures(fsShape);
-				transaction.commit();
-
-			} catch (Exception problem) {
-				problem.printStackTrace();
-				transaction.rollback();
-
-			} finally {
-				transaction.close();
-			}
-		} else {
-			System.out.println(typeName + " does not support read/write access");
-			System.exit(1);
-		}
+	
+	private static void getMinMaxSHPFile(File blah) 
+			throws ShapefileException, MalformedURLException, IOException {
+		
+		ShapefileReader reader = new ShapefileReader(new ShpFiles(blah), true, false, 
+				null);
+		ShapefileHeader header = reader.getHeader();
+		System.out.println(header.toString());
+		reader.close();
 	}
-	
-	
 
 
 	public static void main( String[] args ) 
@@ -309,7 +277,7 @@ public class App  {
 		}
 		//copySHPFile(newSHPFile, featureType, fsShape);
 		reprojectToLatLong(featureType, fsShape, newSHPFile);
-
+		getMinMaxSHPFile(newSHPFile);
 
 	}
 
