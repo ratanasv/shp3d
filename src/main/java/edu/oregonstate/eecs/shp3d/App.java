@@ -218,14 +218,14 @@ public class App  {
 		}
 	}
 	
-	private static void getMinMaxSHPFile(File blah) 
+	private static ShapefileHeader getShapefileHeader(File blah) 
 			throws ShapefileException, MalformedURLException, IOException {
 		
 		ShapefileReader reader = new ShapefileReader(new ShpFiles(blah), true, false, 
 				null);
 		ShapefileHeader header = reader.getHeader();
-		System.out.println(header.toString());
 		reader.close();
+		return header;
 	}
 
 
@@ -239,12 +239,6 @@ public class App  {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
-		if (Argument.CONNECT.isActive()) {
-			new DEMConnection("foo");
-			System.exit(0);
-		}
-		
 		
 
 		File existingSHPFile;
@@ -277,8 +271,8 @@ public class App  {
 		}
 		//copySHPFile(newSHPFile, featureType, fsShape);
 		reprojectToLatLong(featureType, fsShape, newSHPFile);
-		getMinMaxSHPFile(newSHPFile);
-
+		getShapefileHeader(newSHPFile);
+		
 	}
 
 

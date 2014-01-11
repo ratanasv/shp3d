@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class DEMQueryBuilderTest {
+	
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 	
