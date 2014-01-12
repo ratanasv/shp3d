@@ -1,11 +1,16 @@
 package edu.oregonstate.eecs.shp3d;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class DEMConnectionTest {
+	private static Logger logger = LogManager.getLogger();
 	private static final String MIKE_DEM = "http://maverick.coas.oregonstate.edu:11300/" +
 			"terrainextraction.ashx?";
 	@Test
@@ -27,7 +32,7 @@ public class DEMConnectionTest {
 				.withNumLats(numLats)
 				.withNumLngs(numLngs)
 			.build();
-
+		logger.info("request = {}", urlString);
 		DEMConnection connection = new DEMConnection(urlString);
 		DEMConnection.XTRHeader header = connection.getXTRHeader();
 		Assert.assertEquals(numLats, header.numLats);
@@ -37,11 +42,12 @@ public class DEMConnectionTest {
 		Assert.assertEquals(minLng, header.minLng, epsilon);
 		Assert.assertEquals(maxLng, header.maxLng, epsilon);
 
+		List<Float> heightField = new ArrayList<Float>();
 		for (int i=0; i<header.numLats; i++) {
 			for (int j=0; j<header.numLngs; j++) {
-				System.out.print(String.valueOf(connection.heightAtIndex(i, j)) + " ");
+				heightField.add(connection.heightAtIndex(i, j));
 			}
-			System.out.println("");
 		}
+		logger.debug("{}", heightField);
 	}
 }

@@ -13,6 +13,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DefaultTransaction;
@@ -51,6 +53,8 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
 public class App  {
+	private static Logger logger = LogManager.getLogger();
+	
 	static String changeExtension(String shpFile, String extension) {
 		if (extension.indexOf(".") == -1) {
 			throw new IllegalArgumentException("does not contain a period");
@@ -247,6 +251,7 @@ public class App  {
 		} else {
 			existingSHPFile = getExistingShapeFile();
 		}
+		logger.info("Input SHP file = {} ", existingSHPFile);
 
 		ShapefileDataStore store = new ShapefileDataStore(existingSHPFile.toURI().toURL());
 		String name = store.getTypeNames()[0];
@@ -255,8 +260,7 @@ public class App  {
 
 		// print out a feature type header and wait for user input
 		SimpleFeatureType featureType = (SimpleFeatureType) source.getSchema();
-		System.out.println(featureType.toString());
-		System.out.println();
+		logger.info("FeatureType (schema) = {}", featureType);
 
 		if (Argument.VERBOSE.isActive()) {
 			printFeaturesAttributes(fsShape);
@@ -269,6 +273,7 @@ public class App  {
 		} else {
 			newSHPFile = getNewShapeFile(existingSHPFile);
 		}
+		logger.info("Output SHP file = {} ", newSHPFile);
 		//copySHPFile(newSHPFile, featureType, fsShape);
 		reprojectToLatLong(featureType, fsShape, newSHPFile);
 		getShapefileHeader(newSHPFile);
