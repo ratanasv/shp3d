@@ -7,9 +7,7 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
@@ -20,12 +18,7 @@ import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
-import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
-import org.geotools.data.shapefile.files.ShpFiles;
-import org.geotools.data.shapefile.shp.ShapefileException;
-import org.geotools.data.shapefile.shp.ShapefileHeader;
-import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
@@ -40,7 +33,6 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.swing.data.JFileDataStoreChooser;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.geometry.Geometry;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -51,6 +43,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+
+import edu.oregonstate.eecs.processor.SHPUtil;
+import edu.oregonstate.eecs.shp3d.dialog.InputSHPFileDialog;
 
 public class App  {
 	private static Logger logger = LogManager.getLogger();
@@ -84,38 +79,6 @@ public class App  {
 		return threeDSHPFile;
 	}
 
-	private static File getExistingShapeFile() {
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setFileFilter(new FileNameExtensionFilter("Shapefile", "shp"));
-		int result = fileChooser.showOpenDialog(null);
-
-		if (result == JFileChooser.APPROVE_OPTION) {
-			File f = fileChooser.getSelectedFile();
-			return f;
-		} else {
-			throw new RuntimeException("no valid input 2D shapefile");
-		}
-	}
-
-	private static void printFeaturesAttributes(SimpleFeatureCollection fsShape) {
-		FeatureIterator<SimpleFeature> iterator = fsShape.features();
-		try {
-			while( iterator.hasNext() ){
-				SimpleFeature feature = iterator.next();
-				System.out.print(feature.getID() + "\t");
-				for (int i = 0; i < feature.getAttributeCount(); i++) {
-					Object attribute = feature.getAttribute( i );
-					if (!(attribute instanceof Geometry))
-						System.out.print(attribute + "\t");
-				}
-				System.out.println();
-			}
-		}
-		finally {
-			iterator.close();
-		}
-	}
-
 	private static Map<String, Serializable> getDataStoreParams(File newSHPFile)
 			throws MalformedURLException {
 		Map<String, Serializable> params = new HashMap<String, Serializable>();
@@ -124,9 +87,12 @@ public class App  {
 		return params;
 	}
 
-	private static void reprojectToLatLong(final SimpleFeatureType schema,
-			SimpleFeatureCollection featureCollection,
+	private static void reprojectToLatLong(
+			final SimpleFeatureSource source,
 			File file) throws NoSuchAuthorityCodeException, FactoryException, IOException {
+		
+		final SimpleFeatureType schema = source.getSchema();
+		final SimpleFeatureCollection featureCollection = source.getFeatures();
 		
 		CoordinateReferenceSystem dataCRS = schema.getCoordinateReferenceSystem();
 		CoordinateReferenceSystem worldCRS = DefaultGeographicCRS.WGS84;
@@ -206,66 +172,25 @@ public class App  {
 		return collection;
 	}
 
-	private static void printFeaturesGeometry(SimpleFeatureCollection fsShape) {
-		FeatureIterator<SimpleFeature> iterator = fsShape.features();
-		try {
-			while( iterator.hasNext() ){
-				SimpleFeature feature = iterator.next();
-				System.out.print(feature.getID() + "\t");
-				MultiPolygon geometry = (MultiPolygon)feature.getDefaultGeometry();
-				System.out.println(geometry);
-				System.out.println();
-			}
-		}
-		finally {
-			iterator.close();
-		}
-	}
-	
-	private static ShapefileHeader getShapefileHeader(File blah) 
-			throws ShapefileException, MalformedURLException, IOException {
-		
-		ShapefileReader reader = new ShapefileReader(new ShpFiles(blah), true, false, 
-				null);
-		ShapefileHeader header = reader.getHeader();
-		reader.close();
-		return header;
-	}
-
-
 	public static void main( String[] args ) 
 			throws IOException, NoSuchAuthorityCodeException, FactoryException 
 	{
 		System.out.println( "shp3d..." );
 		try {
-			Argument.ArgumentManager.init(args);
+			Argument.init(args);
 		} catch (ParseException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
 
 		File existingSHPFile;
 		if (Argument.SHP_IN.isActive()) {
 			existingSHPFile = new File(Argument.SHP_IN.getValue());
 		} else {
-			existingSHPFile = getExistingShapeFile();
+			InputSHPFileDialog inputDialog = new InputSHPFileDialog();
+			existingSHPFile = inputDialog.getFile();
 		}
 		logger.info("Input SHP file = {} ", existingSHPFile);
-
-		ShapefileDataStore store = new ShapefileDataStore(existingSHPFile.toURI().toURL());
-		String name = store.getTypeNames()[0];
-		SimpleFeatureSource source = store.getFeatureSource(name);
-		SimpleFeatureCollection fsShape = source.getFeatures();
-
-		// print out a feature type header and wait for user input
-		SimpleFeatureType featureType = (SimpleFeatureType) source.getSchema();
-		logger.info("FeatureType (schema) = {}", featureType);
-
-		if (Argument.VERBOSE.isActive()) {
-			printFeaturesAttributes(fsShape);
-			printFeaturesGeometry(fsShape);
-		}
 
 		File newSHPFile;
 		if (Argument.SHP_OUT.isActive()) {
@@ -274,9 +199,9 @@ public class App  {
 			newSHPFile = getNewShapeFile(existingSHPFile);
 		}
 		logger.info("Output SHP file = {} ", newSHPFile);
-		//copySHPFile(newSHPFile, featureType, fsShape);
-		reprojectToLatLong(featureType, fsShape, newSHPFile);
-		getShapefileHeader(newSHPFile);
+		
+		final SimpleFeatureSource source = SHPUtil.getSource(existingSHPFile);
+		reprojectToLatLong(source, newSHPFile);
 		
 	}
 

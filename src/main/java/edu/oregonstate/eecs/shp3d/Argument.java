@@ -16,38 +16,38 @@ enum Argument {
 	SHP_IN("shpin", "fully-qualified path (with filename) for the output shapefile", true),
 	SHP_OUT("shpout", "fully-qualified path (with filename) for the input shapefile", true),
 	VERBOSE("verbose", "verbose, duh", false),
-	CONNECT("connect", "connect to DEM server", false);
+	CONNECT("connect", "connect to DEM server", false),
+	PRINT_GEOMETRY("print_geometry", "print geometry info", false),
+	PRINT_ATTRIBUTE("print_attribute", "print attribute info", false),
+	PRINT_SCHEMA("print_schema", "print schema", false),
+	PRINT_HEADER("print_header", "print header", false);
 
-	final static class ArgumentManager {
-		static void init(String [] args) throws ParseException {
-			Options options = new Options();
-			for (Argument arg : Argument.values()) {
-				options.addOption(arg.stringRep, arg.hasValue, arg.description);
-			}
 
-			CommandLineParser parser = new BasicParser();
-			CommandLine commandLine = parser.parse(options, args);
-
-			if (commandLine.hasOption(HELP.stringRep)) {
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp( "shp3d", options );
-				System.exit(0);
-			}
-
-			for (Argument arg : Argument.values()) {
-				if (commandLine.hasOption(arg.stringRep)) {
-					arg.isActive = true;
-					arg.value = commandLine.getOptionValue(arg.stringRep);
-				} else {
-					arg.isActive = false;
-				}
-			}
+	static void init(String [] args) throws ParseException {
+		Options options = new Options();
+		for (Argument arg : Argument.values()) {
+			options.addOption(arg.stringRep, arg.hasValue, arg.description);
 		}
 
-		private ArgumentManager() {
+		CommandLineParser parser = new BasicParser();
+		CommandLine commandLine = parser.parse(options, args);
 
+		if (commandLine.hasOption(HELP.stringRep)) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp( "shp3d", options );
+			System.exit(0);
+		}
+
+		for (Argument arg : Argument.values()) {
+			if (commandLine.hasOption(arg.stringRep)) {
+				arg.isActive = true;
+				arg.value = commandLine.getOptionValue(arg.stringRep);
+			} else {
+				arg.isActive = false;
+			}
 		}
 	}
+
 
 	private static Map<String, Argument> stringToEnum;
 	static {
