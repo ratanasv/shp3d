@@ -34,8 +34,9 @@ public class SHPInfo {
 				System.out.print(feature.getID() + "\t");
 				for (int i = 0; i < feature.getAttributeCount(); i++) {
 					Object attribute = feature.getAttribute( i );
-					if (!(attribute instanceof Geometry))
+					if (!(attribute instanceof MultiPolygon)) {
 						System.out.print(attribute + "\t");
+					}
 				}
 				System.out.println();
 			}
