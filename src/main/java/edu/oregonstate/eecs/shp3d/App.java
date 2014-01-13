@@ -46,6 +46,7 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import edu.oregonstate.eecs.processor.SHPUtil;
 import edu.oregonstate.eecs.shp3d.dialog.InputSHPFileDialog;
+import edu.oregonstate.eecs.shp3d.dialog.OutputSHPFileDialog;
 
 public class App  {
 	private static Logger logger = LogManager.getLogger();
@@ -55,28 +56,6 @@ public class App  {
 			throw new IllegalArgumentException("does not contain a period");
 		}
 		return FilenameUtils.removeExtension(shpFile).concat(extension);
-	}
-
-	private static File getNewShapeFile(File twoDSHPFile) {
-		String path = twoDSHPFile.getAbsolutePath();
-		String newPath = path.substring(0, path.length() - 4) + "3D.shp";
-
-		JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
-		chooser.setDialogTitle("Save shapefile");
-		chooser.setSelectedFile(new File(newPath));
-
-		int returnVal = chooser.showSaveDialog(null);
-
-		if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
-			throw new RuntimeException("output file is not valid");
-		}
-
-		File threeDSHPFile = chooser.getSelectedFile();
-		if (threeDSHPFile.equals(twoDSHPFile)) {
-			throw new RuntimeException("Error: cannot replace " + twoDSHPFile);
-		}
-
-		return threeDSHPFile;
 	}
 
 	private static Map<String, Serializable> getDataStoreParams(File newSHPFile)
@@ -196,7 +175,8 @@ public class App  {
 		if (Argument.SHP_OUT.isActive()) {
 			newSHPFile = new File(Argument.SHP_OUT.getValue());
 		} else {
-			newSHPFile = getNewShapeFile(existingSHPFile);
+			OutputSHPFileDialog outputDialog = new OutputSHPFileDialog(existingSHPFile);
+			newSHPFile = outputDialog.getFile();
 		}
 		logger.info("Output SHP file = {} ", newSHPFile);
 		
