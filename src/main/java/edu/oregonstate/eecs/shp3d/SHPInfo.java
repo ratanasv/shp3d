@@ -64,11 +64,8 @@ public class SHPInfo {
 	
 	private static void printShapefileHeader(File blah) 
 			throws ShapefileException, MalformedURLException, IOException {
-		
-		ShapefileReader reader = new ShapefileReader(new ShpFiles(blah), true, false, 
-				null);
-		ShapefileHeader header = reader.getHeader();
-		reader.close();
+
+		ShapefileHeader header = SHPUtil.getShapefileHeader(blah);
 		System.out.println("shp header = " + header.toString());
 	}
 

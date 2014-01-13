@@ -43,12 +43,10 @@ public class DEMHeightFieldTest {
 		Assert.assertEquals(minLng, header.minLng, epsilon);
 		Assert.assertEquals(maxLng, header.maxLng, epsilon);
 
-		List<Float> heightField = new ArrayList<Float>();
 		for (int i=0; i<header.numLats; i++) {
 			for (int j=0; j<header.numLngs; j++) {
-				heightField.add(heights.heightAtIndex(i, j));
+				Assert.assertEquals(2000.0f, heights.heightAtIndex(i, j), 1000.0f);
 			}
 		}
-		logger.debug("{}", heightField);
 	}
 }
