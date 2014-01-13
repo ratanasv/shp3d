@@ -35,8 +35,9 @@ public class DEMConnectionTest {
 				.withNumLngs(numLngs)
 			.build();
 		logger.info("request = {}", urlString);
-		DEMHeightField connection = new DEMHeightField(urlString);
-		DEMHeightField.XTRHeader header = connection.getXTRHeader();
+		DEMConnection connection = new DEMConnection(urlString);
+		DEMHeightField heights = new DEMHeightField(connection);
+		DEMHeightField.XTRHeader header = heights.getXTRHeader();
 		Assert.assertEquals(numLats, header.numLats);
 		Assert.assertEquals(numLngs, header.numLngs);
 		Assert.assertEquals(minLat, header.minLat, epsilon);
@@ -47,7 +48,7 @@ public class DEMConnectionTest {
 		List<Float> heightField = new ArrayList<Float>();
 		for (int i=0; i<header.numLats; i++) {
 			for (int j=0; j<header.numLngs; j++) {
-				heightField.add(connection.heightAtIndex(i, j));
+				heightField.add(heights.heightAtIndex(i, j));
 			}
 		}
 		logger.debug("{}", heightField);

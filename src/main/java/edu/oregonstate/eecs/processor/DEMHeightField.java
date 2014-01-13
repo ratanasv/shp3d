@@ -48,25 +48,9 @@ final class DEMHeightField implements HeightField {
 	private final List<Float> heights;
 	private final XTRHeader xtrHeader;
 
-	DEMHeightField(final String urlString) throws IOException {
-		URL url = new URL(urlString);
-		URLConnection connection = url.openConnection();
-		InputStream in = connection.getInputStream();
-		int contentLength = connection.getContentLength();
-		ByteArrayOutputStream output = new ByteArrayOutputStream(contentLength);
-
-		byte[] buffer = new byte[512];
-		while (true) {
-			int length = in.read(buffer);
-			if (length == -1) {
-				break;
-			}
-			output.write(buffer, 0, length);
-		}
-		in.close();
-		output.close();
-
-		byte[] byteArray = output.toByteArray();
+	DEMHeightField(DEMConnection connection) throws IOException {
+		byte[] byteArray = connection.getByteArray();
+		
 		final int splitLoc = getFormFeedLocation(byteArray); 
 		final int arrayLength = byteArray.length;
 		xtrHeader = new XTRHeader(Arrays.copyOfRange(byteArray, 0, splitLoc));
