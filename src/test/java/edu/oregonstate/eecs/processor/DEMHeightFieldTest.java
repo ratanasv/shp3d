@@ -11,12 +11,10 @@ import org.junit.Test;
 
 import edu.oregonstate.eecs.processor.DEMHeightField;
 
-public class DEMConnectionTest {
+public class DEMHeightFieldTest {
 	private static Logger logger = LogManager.getLogger();
-	private static final String MIKE_DEM = "http://maverick.coas.oregonstate.edu:11300/" +
-			"terrainextraction.ashx?";
 	@Test
-	public void testConnection() throws IOException {
+	public void testHeightField() throws IOException {
 		final int numLats = 5;
 		final int numLngs = 5;
 		final float minLat = 40.95f;
@@ -26,7 +24,7 @@ public class DEMConnectionTest {
 		final float epsilon = 1e-8f;
 		
 
-		String urlString = DEMQueryBuilder.startBuilding(MIKE_DEM)
+		String urlString = DEMQueryBuilder.startBuilding(DEMConnection.Server.MIKES_DEM.getURL())
 				.withLat1(minLat)
 				.withLat2(maxLat)
 				.withLng1(minLng)

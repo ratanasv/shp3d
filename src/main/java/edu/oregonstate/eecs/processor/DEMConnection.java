@@ -8,7 +8,22 @@ import java.net.URLConnection;
 
 final class DEMConnection {
 	private final byte[] byteArray;
-	
+
+	static enum Server {
+		MIKES_DEM("http://maverick.coas.oregonstate.edu:11300/terrainextraction.ashx?");
+
+		private final String urlString;
+
+		Server(String urlString) {
+			this.urlString = urlString;
+		}
+
+		String getURL() {
+			return urlString;
+		}
+
+	}
+
 	DEMConnection(final String urlString) throws IOException {
 		URL url = new URL(urlString);
 		URLConnection connection = url.openConnection();
@@ -29,7 +44,7 @@ final class DEMConnection {
 
 		byteArray = output.toByteArray();
 	}
-	
+
 	byte[] getByteArray() {
 		return byteArray;
 	}
