@@ -1,4 +1,4 @@
-package edu.oregonstate.eecs.shp3d;
+package edu.oregonstate.eecs.processor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,7 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
-final class DEMConnection implements HeightField {
+
+final class DEMHeightField implements HeightField {
 	class XTRHeader {
 		final float maxLat;
 		final float maxLng;
@@ -47,7 +48,7 @@ final class DEMConnection implements HeightField {
 	private final List<Float> heights;
 	private final XTRHeader xtrHeader;
 
-	DEMConnection(final String urlString) throws IOException {
+	DEMHeightField(final String urlString) throws IOException {
 		URL url = new URL(urlString);
 		URLConnection connection = url.openConnection();
 		InputStream in = connection.getInputStream();

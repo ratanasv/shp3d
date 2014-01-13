@@ -1,4 +1,4 @@
-package edu.oregonstate.eecs.shp3d;
+package edu.oregonstate.eecs.processor;
 
 interface HeightField {
 	float heightAt(float x, float y);
