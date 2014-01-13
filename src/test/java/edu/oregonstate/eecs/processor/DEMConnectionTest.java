@@ -17,8 +17,8 @@ public class DEMConnectionTest {
 			"terrainextraction.ashx?";
 	@Test
 	public void testConnection() throws IOException {
-		final int numLats = 10;
-		final int numLngs = 10;
+		final int numLats = 5;
+		final int numLngs = 5;
 		final float minLat = 40.95f;
 		final float maxLat = 41.0f;
 		final float minLng = -123.0f;

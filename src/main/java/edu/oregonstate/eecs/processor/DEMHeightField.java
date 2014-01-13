@@ -44,6 +44,24 @@ final class DEMHeightField implements HeightField {
 		}
 		throw new RuntimeException("data doesn't contain form feed char");
 	}
+	
+	// okay like seriously this is the most ridiculous bug i've ever seen.
+	// EDIT: found the root cause: http://en.wikipedia.org/wiki/Endianness
+	static byte[] ridiculousReverse(byte[] weird) {
+		final int length = weird.length;
+		byte[] correct = new byte[length];
+		for (int i=0; i<length; i=i+4) {
+			byte a = weird[i+0];
+			byte b = weird[i+1];
+			byte c = weird[i+2];
+			byte d = weird[i+3];
+			correct[i+0] = d;
+			correct[i+1] = c;
+			correct[i+2] = b;
+			correct[i+3] = a;
+		}
+		return correct;
+	}
 
 	private final List<Float> heights;
 	private final XTRHeader xtrHeader;
@@ -54,8 +72,11 @@ final class DEMHeightField implements HeightField {
 		final int splitLoc = getFormFeedLocation(byteArray); 
 		final int arrayLength = byteArray.length;
 		xtrHeader = new XTRHeader(Arrays.copyOfRange(byteArray, 0, splitLoc));
-		byte[] xtrContent = Arrays.copyOfRange(byteArray, splitLoc + 1, arrayLength);
+		byte[] weirdContent = Arrays.copyOfRange(byteArray, splitLoc + 1, arrayLength);
+		byte[] xtrContent = ridiculousReverse(weirdContent);
 		ByteBuffer byteBuffer = ByteBuffer.wrap(xtrContent);
+		
+		
 
 		final int totalPoints = xtrHeader.numLats*xtrHeader.numLngs;
 		final int capacity = byteBuffer.capacity();
