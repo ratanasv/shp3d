@@ -18,10 +18,10 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 
 abstract class SHPWriterVisitor implements PipelineElementVisitor {
-	protected final File outputFile;
-	protected FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
-	protected Transaction transaction;
-	protected DataStore dataStore;
+	private final File outputFile;
+	private FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
+	private Transaction transaction;
+	private DataStore dataStore;
 	
 	SHPWriterVisitor(File file) {
 		outputFile = file;

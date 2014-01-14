@@ -16,7 +16,7 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.MultiPolygon;
 
-class LatLongVisitor extends SHPWriterVisitor implements PipelineElementVisitor {
+public class LatLongVisitor extends SHPWriterVisitor implements PipelineElementVisitor {
 	private MathTransform transform;
 	
 	LatLongVisitor(File file) {

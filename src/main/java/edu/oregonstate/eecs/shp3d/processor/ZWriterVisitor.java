@@ -13,7 +13,7 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
-class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementVisitor {
+public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementVisitor {
 	
 	ZWriterVisitor(File file) {
 		super(file);

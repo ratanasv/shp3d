@@ -2,7 +2,7 @@ package edu.oregonstate.eecs.shp3d.processor;
 
 import org.geotools.data.simple.SimpleFeatureIterator;
 
-public class PostTraversal implements PipelineElement {
+class PostTraversal implements PipelineElement {
 	private final SimpleFeatureIterator iterator;
 	
 	PostTraversal(SimpleFeatureIterator iterator) {

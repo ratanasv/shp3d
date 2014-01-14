@@ -8,8 +8,8 @@ import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
 
 
-class Pipeliner {
-	static void Start(final SimpleFeatureSource source, PipelineElementVisitor visitor) 
+public class Pipeliner {
+	public static void start(final SimpleFeatureSource source, PipelineElementVisitor visitor) 
 			throws IOException {
 
 		PipelineElement preTraversal = new PreTraversal(source.getSchema());

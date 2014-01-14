@@ -18,6 +18,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import edu.oregonstate.eecs.shp3d.dialog.InputSHPFileDialog;
+import edu.oregonstate.eecs.shp3d.processor.GeometryPrinterVisitor;
+import edu.oregonstate.eecs.shp3d.processor.Pipeliner;
 import edu.oregonstate.eecs.shp3d.processor.SHPUtil;
 
 public class SHPInfo {
@@ -43,20 +45,8 @@ public class SHPInfo {
 		}
 	}
 	
-	private static void printFeaturesGeometry(SimpleFeatureCollection fsShape) {
-		FeatureIterator<SimpleFeature> iterator = fsShape.features();
-		try {
-			while( iterator.hasNext() ){
-				SimpleFeature feature = iterator.next();
-				System.out.print(feature.getID() + "\t");
-				MultiPolygon geometry = (MultiPolygon)feature.getDefaultGeometry();
-				System.out.println(geometry);
-				System.out.println();
-			}
-		}
-		finally {
-			iterator.close();
-		}
+	private static void printFeaturesGeometry(SimpleFeatureSource source) throws IOException {
+		Pipeliner.start(source, new GeometryPrinterVisitor());
 	}
 	
 	private static void printShapefileHeader(File blah) 
@@ -101,7 +91,7 @@ public class SHPInfo {
 		}
 		
 		if (Argument.PRINT_GEOMETRY.isActive()) {
-			printFeaturesGeometry(collection);
+			printFeaturesGeometry(source);
 		}
 	}
 
