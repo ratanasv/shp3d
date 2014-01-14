@@ -46,7 +46,9 @@ public class SHPInfo {
 	}
 	
 	private static void printFeaturesGeometry(SimpleFeatureSource source) throws IOException {
-		Pipeliner.start(source, new GeometryPrinterVisitor());
+		
+		Pipeliner pipe = new Pipeliner(source);
+		pipe.start(new GeometryPrinterVisitor());
 	}
 	
 	private static void printShapefileHeader(File blah) 

@@ -30,7 +30,8 @@ public final class SHPUtil {
 			final SimpleFeatureSource source,
 			File file) throws NoSuchAuthorityCodeException, FactoryException, IOException {
 		
-		Pipeliner.start(source, new LatLongVisitor(file));
+		Pipeliner pipe = new Pipeliner(source);
+		pipe.start(new LatLongVisitor(file));
 	}
 	
 	public static ShapefileHeader getShapefileHeader(File blah) 
@@ -48,6 +49,8 @@ public final class SHPUtil {
 	public static void fillWithBogusZ(
 			final SimpleFeatureSource source, 
 			final File outputFile) throws IOException {
-		Pipeliner.start(source, new ZWriterVisitor(outputFile));
+		
+		Pipeliner pipe = new Pipeliner(source);
+		pipe.start(new ZWriterVisitor(outputFile));
 	}
 }

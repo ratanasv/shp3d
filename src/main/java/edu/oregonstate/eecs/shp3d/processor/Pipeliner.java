@@ -9,7 +9,15 @@ import org.opengis.feature.simple.SimpleFeature;
 
 
 public class Pipeliner {
-	public static void start(final SimpleFeatureSource source, PipelineElementVisitor visitor) 
+	private final SimpleFeatureSource source;
+	
+	public Pipeliner(SimpleFeatureSource source) {
+		this.source = source;
+	}
+	
+	
+	
+	public void start(PipelineElementVisitor visitor) 
 			throws IOException {
 
 		PipelineElement preTraversal = new PreTraversal(source.getSchema());
