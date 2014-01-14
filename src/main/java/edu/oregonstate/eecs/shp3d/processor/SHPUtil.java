@@ -48,9 +48,10 @@ public final class SHPUtil {
 	
 	public static void fillWithBogusZ(
 			final SimpleFeatureSource source, 
+			final ShapefileHeader header,
 			final File outputFile) throws IOException {
 		
 		Pipeliner pipe = new Pipeliner(source);
-		pipe.start(new ZWriterVisitor(outputFile));
+		pipe.start(new ZWriterVisitor(header, outputFile));
 	}
 }

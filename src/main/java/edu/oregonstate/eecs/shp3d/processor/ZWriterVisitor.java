@@ -22,24 +22,51 @@ import com.vividsolutions.jts.geom.Polygon;
 public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementVisitor {
 	private final ShapefileHeader header;
 	private static Logger logger = LogManager.getLogger();
+	private final HeightField heightField;
+	private final int numLats = 2048;
+	private final int numLngs = 2048;
 
-	ZWriterVisitor(File file) throws ShapefileException, MalformedURLException, IOException {
+	ZWriterVisitor(ShapefileHeader header, File file) 
+			throws ShapefileException, MalformedURLException, IOException {
+		
 		super(file);
-		header = SHPUtil.getShapefileHeader(file);
+		this.header = header;
+		heightField = heightFieldFactory();
 	}
 
+	private HeightField heightFieldFactory() throws IOException {
+		String urlString = DEMQueryBuilder.startBuilding(DEMConnection.Server.MIKES_DEM.getURL())
+				.withLat1((float) header.minY())
+				.withLat2((float) header.maxY())
+				.withLng1((float) header.minX())
+				.withLng2((float) header.maxX())
+				.withNumLats(numLats)
+				.withNumLngs(numLngs)
+			.build();
+		logger.info("Connecting to DEM server with Query {}. This will take awhile...", 
+			urlString);
+		DEMConnection connection = new DEMConnection(urlString);
+		logger.info("DEM data received, begin parsing...");
+		return new DEMHeightField(connection);
+	}
 
-	private static Coordinate[] addZWithRepair(Coordinate[] source) {
+	private Coordinate[] addZWithRepair(Coordinate[] source) {
 		final int length = source.length;
 		Coordinate[] output; 
 		if (source[0] != source[length-1]) {
+			final double longtitude = source[0].x;
+			final double latitude = source[0].y;
+			float heightAt0 = heightField.heightAt(longtitude, latitude);
 			output = new Coordinate[length+1];
-			output[length] = new Coordinate(source[0].x, source[0].y, 3.14f);
+			output[length] = new Coordinate(longtitude, latitude, heightAt0);
 		} else {
 			output = new Coordinate[length];
 		}
 		for (int i=0; i<length; i++) {
-			output[i] = new Coordinate(source[i].x, source[i].y, 3.14);
+			final double longtitude = source[i].x;
+			final double latitude = source[i].y;
+			float height = heightField.heightAt(longtitude, latitude);
+			output[i] = new Coordinate(longtitude, latitude, height);
 		}
 		return output;
 	}
@@ -72,9 +99,9 @@ public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementV
 
 			LinearRing ring = geometryFactory.createLinearRing( outCoords );
 			outPolygons[i] = geometryFactory.createPolygon(ring, null );
-
 		}
 		MultiPolygon outMultiPolygon = geometryFactory.createMultiPolygon(outPolygons);
+		System.out.println(outMultiPolygon);
 		outFeature.setDefaultGeometry(outMultiPolygon);
 	}
 

@@ -94,11 +94,11 @@ final class DEMHeightField implements HeightField {
 	}
 
 	@Override
-	public float heightAt(float x, float y) {
+	public float heightAt(double x, double y) {
 		double latRange = xtrHeader.maxLat-xtrHeader.minLat;
 		double lngRange = xtrHeader.maxLng-xtrHeader.minLng;
-		int latI = (int)(((y-xtrHeader.minLat)/latRange)*((float)xtrHeader.numLats-1.0));
-		int lngI = (int)(((x-xtrHeader.minLng)/lngRange)*((float)xtrHeader.numLngs-1.0));
+		int latI = (int)(((y-xtrHeader.minLat)/latRange)*((double)xtrHeader.numLats-1.0));
+		int lngI = (int)(((x-xtrHeader.minLng)/lngRange)*((double)xtrHeader.numLngs-1.0));
 		return heightAtIndex(latI, lngI);
 	}
 

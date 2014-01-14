@@ -7,6 +7,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.geotools.data.shapefile.shp.ShapefileHeader;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
@@ -24,6 +25,12 @@ public class App  {
 			throw new IllegalArgumentException("does not contain a period");
 		}
 		return FilenameUtils.removeExtension(shpFile).concat(extension);
+	}
+	
+	
+	static String concatFilename(String base, String extra) {
+		return FilenameUtils.getFullPath(base) + FilenameUtils.getBaseName(base) + extra +
+				"." + FilenameUtils.getExtension(base);
 	}
 
 
@@ -57,8 +64,15 @@ public class App  {
 		logger.info("Output SHP file = {} ", newSHPFile);
 		
 		final SimpleFeatureSource source = SHPUtil.getSource(existingSHPFile);
-		SHPUtil.reprojectToLatLong(source, newSHPFile);
-		SHPUtil.fillWithBogusZ(source, newSHPFile);
+		
+		File latlongFile = new File(concatFilename(existingSHPFile.toString(), "Latlong"));
+		logger.info("Projecting to Lat/Long...");
+		SHPUtil.reprojectToLatLong(source, latlongFile);
+		
+		ShapefileHeader headerLatlong = SHPUtil.getShapefileHeader(latlongFile);
+		final SimpleFeatureSource latlongSource = SHPUtil.getSource(latlongFile);
+		SHPUtil.fillWithBogusZ(latlongSource, headerLatlong, newSHPFile);
+		logger.info("All done!");
 	}
 
 
