@@ -1,4 +1,4 @@
-package edu.oregonstate.eecs.processor;
+package edu.oregonstate.eecs.shp3d.processor;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ class Pipeliner {
 			}
 			
 		} finally {
-			PipelineElement postTraversal = new PostTraversal();
+			PipelineElement postTraversal = new PostTraversal(iterator);
 			postTraversal.accept(visitor);
 			iterator.close();
 		}

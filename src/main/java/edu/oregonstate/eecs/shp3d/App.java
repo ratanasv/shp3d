@@ -12,9 +12,9 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 
 
-import edu.oregonstate.eecs.processor.SHPUtil;
 import edu.oregonstate.eecs.shp3d.dialog.InputSHPFileDialog;
 import edu.oregonstate.eecs.shp3d.dialog.OutputSHPFileDialog;
+import edu.oregonstate.eecs.shp3d.processor.SHPUtil;
 
 public class App  {
 	private static Logger logger = LogManager.getLogger();

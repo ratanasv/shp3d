@@ -17,8 +17,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.MultiPolygon;
 
-import edu.oregonstate.eecs.processor.SHPUtil;
 import edu.oregonstate.eecs.shp3d.dialog.InputSHPFileDialog;
+import edu.oregonstate.eecs.shp3d.processor.SHPUtil;
 
 public class SHPInfo {
 	private static Logger logger = LogManager.getLogger();

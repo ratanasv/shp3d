@@ -1,4 +1,4 @@
-package edu.oregonstate.eecs.processor;
+package edu.oregonstate.eecs.shp3d.processor;
 
 import java.io.File;
 import java.io.IOException;

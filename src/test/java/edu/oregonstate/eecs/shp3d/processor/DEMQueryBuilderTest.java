@@ -1,4 +1,4 @@
-package edu.oregonstate.eecs.processor;
+package edu.oregonstate.eecs.shp3d.processor;
 
 import org.junit.Assert;
 
@@ -6,7 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import edu.oregonstate.eecs.processor.DEMQueryBuilder;
+import edu.oregonstate.eecs.shp3d.processor.DEMQueryBuilder;
 
 public class DEMQueryBuilderTest {
 	
