@@ -93,15 +93,14 @@ public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementV
 			Coordinate[] outCoords = addZWithRepair(sourceCoords);
 
 			if (sourceCoords.length != outCoords.length) {
-				logger.error("Geometry does not form a closed loop {}", 
-						sourceFeature.getID());
+				logger.error("Geometry does not form a closed loop {}. Data = {}", 
+						sourceFeature.getID(), sourceCoords);
 			}
 
 			LinearRing ring = geometryFactory.createLinearRing( outCoords );
 			outPolygons[i] = geometryFactory.createPolygon(ring, null );
 		}
 		MultiPolygon outMultiPolygon = geometryFactory.createMultiPolygon(outPolygons);
-		System.out.println(outMultiPolygon);
 		outFeature.setDefaultGeometry(outMultiPolygon);
 	}
 
