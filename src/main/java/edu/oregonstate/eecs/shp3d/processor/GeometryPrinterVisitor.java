@@ -18,7 +18,6 @@ public class GeometryPrinterVisitor implements PipelineElementVisitor {
 		MultiPolygon geometry = (MultiPolygon)feature.getDefaultGeometry();
 		System.out.println(geometry);
 		System.out.println();
-
 	}
 
 	@Override

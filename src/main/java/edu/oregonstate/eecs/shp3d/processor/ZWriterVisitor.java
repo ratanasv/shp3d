@@ -1,7 +1,13 @@
 package edu.oregonstate.eecs.shp3d.processor;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.geotools.data.shapefile.shp.ShapefileException;
+import org.geotools.data.shapefile.shp.ShapefileHeader;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -14,12 +20,15 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
 public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementVisitor {
-	
-	ZWriterVisitor(File file) {
+	private final ShapefileHeader header;
+	private static Logger logger = LogManager.getLogger();
+
+	ZWriterVisitor(File file) throws ShapefileException, MalformedURLException, IOException {
 		super(file);
+		header = SHPUtil.getShapefileHeader(file);
 	}
-	
-	
+
+
 	private static Coordinate[] addZWithRepair(Coordinate[] source) {
 		final int length = source.length;
 		Coordinate[] output; 
@@ -49,19 +58,24 @@ public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementV
 	void writeToFeature(SimpleFeature sourceFeature, SimpleFeature outFeature) {
 		GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory( null );
 
-        MultiPolygon sourceMultiPolygon = (MultiPolygon)sourceFeature.getDefaultGeometry();
-        Polygon outPolygons[] = new Polygon[sourceMultiPolygon.getNumGeometries()];
-        for (int i=0; i<sourceMultiPolygon.getNumGeometries(); i++) {
-                Geometry sourceGeometry = sourceMultiPolygon.getGeometryN(i);
-                Coordinate[] sourceCoords = sourceGeometry.getCoordinates();
-                Coordinate[] outCoords = addZWithRepair(sourceCoords);
+		MultiPolygon sourceMultiPolygon = (MultiPolygon)sourceFeature.getDefaultGeometry();
+		Polygon outPolygons[] = new Polygon[sourceMultiPolygon.getNumGeometries()];
+		for (int i=0; i<sourceMultiPolygon.getNumGeometries(); i++) {
+			Geometry sourceGeometry = sourceMultiPolygon.getGeometryN(i);
+			Coordinate[] sourceCoords = sourceGeometry.getCoordinates();
+			Coordinate[] outCoords = addZWithRepair(sourceCoords);
 
-                LinearRing ring = geometryFactory.createLinearRing( outCoords );
-                outPolygons[i] = geometryFactory.createPolygon(ring, null );
+			if (sourceCoords.length != outCoords.length) {
+				logger.error("Geometry does not form a closed loop {}", 
+						sourceFeature.getID());
+			}
 
-        }
-        MultiPolygon outMultiPolygon = geometryFactory.createMultiPolygon(outPolygons);
-        outFeature.setDefaultGeometry(outMultiPolygon);
+			LinearRing ring = geometryFactory.createLinearRing( outCoords );
+			outPolygons[i] = geometryFactory.createPolygon(ring, null );
+
+		}
+		MultiPolygon outMultiPolygon = geometryFactory.createMultiPolygon(outPolygons);
+		outFeature.setDefaultGeometry(outMultiPolygon);
 	}
 
 }
