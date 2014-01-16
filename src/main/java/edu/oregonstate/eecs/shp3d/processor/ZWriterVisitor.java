@@ -52,18 +52,9 @@ public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementV
 		return new DEMHeightField(connection);
 	}
 
-	private Coordinate[] addZWithRepair(Coordinate[] source) {
+	private Coordinate[] addZ(Coordinate[] source) {
 		final int length = source.length;
-		Coordinate[] output; 
-		if (!source[0].equals2D(source[length-1])) {
-			final double longtitude = source[0].x;
-			final double latitude = source[0].y;
-			float heightAt0 = heightField.heightAt(longtitude, latitude);
-			output = new Coordinate[length+1];
-			output[length] = new Coordinate(longtitude, latitude, heightAt0);
-		} else {
-			output = new Coordinate[length];
-		}
+		Coordinate[] output = new Coordinate[length];
 		for (int i=0; i<length; i++) {
 			final double longtitude = source[i].x;
 			final double latitude = source[i].y;
@@ -92,24 +83,37 @@ public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementV
 	@Override
 	void writeToFeature(SimpleFeature sourceFeature, SimpleFeature outFeature) {
 		GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory( null );
-
 		MultiPolygon sourceMultiPolygon = (MultiPolygon)sourceFeature.getDefaultGeometry();
 		Polygon outPolygons[] = new Polygon[sourceMultiPolygon.getNumGeometries()];
+		if (sourceMultiPolygon.getNumGeometries() != 1) {
+			throw new RuntimeException("wtf");
+		}
 		for (int i=0; i<sourceMultiPolygon.getNumGeometries(); i++) {
-			Geometry sourceGeometry = sourceMultiPolygon.getGeometryN(i);
-			Coordinate[] sourceCoords = sourceGeometry.getCoordinates();
-			Coordinate[] outCoords = addZWithRepair(sourceCoords);
+			Polygon sourcePolygon = (Polygon) sourceMultiPolygon.getGeometryN(i);
 
-			if (sourceCoords.length != outCoords.length) {
-				logger.error("Geometry does not form a closed loop {}. Data = {}", 
-						sourceFeature.getID(), sourceCoords);
-			}
+			Coordinate[] sourceExteriorCoord = sourcePolygon.getExteriorRing().getCoordinates();
+			Coordinate[] outExteriorCoord = addZ(sourceExteriorCoord);
 
-			LinearRing ring = geometryFactory.createLinearRing( outCoords );
-			outPolygons[i] = geometryFactory.createPolygon(ring, null );
+			LinearRing[] outInteriorRings = addZInteriorRings(geometryFactory, sourcePolygon);
+
+			LinearRing outExteriorRing = geometryFactory.createLinearRing( outExteriorCoord );
+			outPolygons[i] = geometryFactory.createPolygon(outExteriorRing, outInteriorRings );
 		}
 		MultiPolygon outMultiPolygon = geometryFactory.createMultiPolygon(outPolygons);
 		outFeature.setDefaultGeometry(outMultiPolygon);
+	}
+
+	private LinearRing[] addZInteriorRings(GeometryFactory geometryFactory,
+			Polygon sourcePolygon) {
+		final int numInteriorRing = sourcePolygon.getNumInteriorRing();
+		LinearRing[] outInteriorRings = new LinearRing[numInteriorRing];
+
+		for (int j=0; j<numInteriorRing; j++) {
+			Coordinate[] sourceInteriorCoords = sourcePolygon.getInteriorRingN(j).getCoordinates();
+			Coordinate[] outInteriorCoords = addZ(sourceInteriorCoords);
+			outInteriorRings[j] = geometryFactory.createLinearRing(outInteriorCoords);
+		}
+		return outInteriorRings;
 	}
 	
 	public double getMinZ() {
