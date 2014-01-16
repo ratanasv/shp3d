@@ -53,7 +53,7 @@ public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementV
 	private Coordinate[] addZWithRepair(Coordinate[] source) {
 		final int length = source.length;
 		Coordinate[] output; 
-		if (source[0] != source[length-1]) {
+		if (!source[0].equals2D(source[length-1])) {
 			final double longtitude = source[0].x;
 			final double latitude = source[0].y;
 			float heightAt0 = heightField.heightAt(longtitude, latitude);
