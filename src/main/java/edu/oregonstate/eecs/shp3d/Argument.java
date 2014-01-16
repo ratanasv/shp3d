@@ -20,7 +20,8 @@ enum Argument {
 	PRINT_GEOMETRY("print_geometry", "print geometry info", false),
 	PRINT_ATTRIBUTE("print_attribute", "print attribute info", false),
 	PRINT_SCHEMA("print_schema", "print schema", false),
-	PRINT_HEADER("print_header", "print header", false);
+	PRINT_HEADER("print_header", "print header", false),
+	CHECK("check", "check shapefile for correctness", false);
 
 
 	static void init(String [] args) throws ParseException {

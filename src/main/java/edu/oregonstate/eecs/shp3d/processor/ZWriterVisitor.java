@@ -25,6 +25,8 @@ public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementV
 	private final HeightField heightField;
 	private final int numLats = 2048;
 	private final int numLngs = 2048;
+	private double minZ = Double.MAX_VALUE;
+	private double maxZ = Double.MIN_VALUE;
 
 	ZWriterVisitor(ShapefileHeader header, File file) 
 			throws ShapefileException, MalformedURLException, IOException {
@@ -67,6 +69,12 @@ public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementV
 			final double latitude = source[i].y;
 			float height = heightField.heightAt(longtitude, latitude);
 			output[i] = new Coordinate(longtitude, latitude, height);
+			if (height > maxZ) {
+				maxZ = height;
+			}
+			if (height < minZ) {
+				minZ = height;
+			}
 		}
 		return output;
 	}
@@ -102,6 +110,20 @@ public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementV
 		}
 		MultiPolygon outMultiPolygon = geometryFactory.createMultiPolygon(outPolygons);
 		outFeature.setDefaultGeometry(outMultiPolygon);
+	}
+	
+	public double getMinZ() {
+		if (this.minZ == Double.MAX_VALUE) {
+			throw new RuntimeException("minZ has not been set yet.");
+		}
+		return this.minZ;
+	}
+	
+	public double getMaxZ() {
+		if (this.maxZ == Double.MIN_VALUE) {
+			throw new RuntimeException("maxZ has not been set yet.");
+		}
+		return this.maxZ;
 	}
 
 }

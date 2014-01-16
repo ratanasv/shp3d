@@ -19,6 +19,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 
 import edu.oregonstate.eecs.shp3d.dialog.InputSHPFileDialog;
 import edu.oregonstate.eecs.shp3d.processor.GeometryPrinterVisitor;
+import edu.oregonstate.eecs.shp3d.processor.IncompleteRingVisitor;
 import edu.oregonstate.eecs.shp3d.processor.Pipeliner;
 import edu.oregonstate.eecs.shp3d.processor.SHPUtil;
 
@@ -57,6 +58,12 @@ public class SHPInfo {
 		ShapefileHeader header = SHPUtil.getShapefileHeader(blah);
 		System.out.println("shp header = " + header.toString());
 	}
+	
+	private static void checkForIncompleteRings(SimpleFeatureSource source) throws IOException {
+		
+		Pipeliner pipe = new Pipeliner(source);
+		pipe.start(new IncompleteRingVisitor());
+	}
 
 	public static void main(String[] args) throws IOException {
 		System.out.println( "SHPInfo..." );
@@ -94,6 +101,10 @@ public class SHPInfo {
 		
 		if (Argument.PRINT_GEOMETRY.isActive()) {
 			printFeaturesGeometry(source);
+		}
+		
+		if (Argument.CHECK.isActive()) {
+			checkForIncompleteRings(source);
 		}
 	}
 

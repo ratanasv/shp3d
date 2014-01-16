@@ -51,7 +51,14 @@ public final class SHPUtil {
 			final ShapefileHeader header,
 			final File outputFile) throws IOException {
 		
+		
 		Pipeliner pipe = new Pipeliner(source);
-		pipe.start(new ZWriterVisitor(header, outputFile));
+		ZWriterVisitor visitor = new ZWriterVisitor(header, outputFile);
+		pipe.start(visitor);
+		ShapefileHeaderZRepair zHeaderRepair = new ShapefileHeaderZRepair.Builder()
+				.withMinZ(visitor.getMinZ())
+				.withMaxZ(visitor.getMaxZ())
+			.build();
+		zHeaderRepair.writeToFile(outputFile);
 	}
 }
