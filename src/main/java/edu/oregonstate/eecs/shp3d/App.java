@@ -65,7 +65,12 @@ public class App  {
 		
 		final SimpleFeatureSource source = SHPUtil.getSource(existingSHPFile);
 		
-		File latlongFile = new File(concatFilename(existingSHPFile.toString(), "Latlong"));
+		
+		String latlongFileString = FilenameUtils.getFullPath(newSHPFile.toString()) + 
+				FilenameUtils.getBaseName(existingSHPFile.toString()) + 
+				"Latlong" + ".shp";
+		
+		File latlongFile = new File(latlongFileString);
 		logger.info("Projecting to Lat/Long...");
 		SHPUtil.reprojectToLatLong(source, latlongFile);
 		
