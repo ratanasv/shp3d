@@ -13,7 +13,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -23,34 +22,18 @@ public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementV
 	private final ShapefileHeader header;
 	private static Logger logger = LogManager.getLogger();
 	private final HeightField heightField;
-	private final int numLats = 2048;
-	private final int numLngs = 2048;
+
 	private double minZ = Double.MAX_VALUE;
 	private double maxZ = Double.MIN_VALUE;
 
-	ZWriterVisitor(ShapefileHeader header, File file) 
+	ZWriterVisitor(ShapefileHeader header, File file, HeightField heightField) 
 			throws ShapefileException, MalformedURLException, IOException {
 		
 		super(file);
 		this.header = header;
-		heightField = heightFieldFactory();
+		this.heightField = heightField;
 	}
-
-	private HeightField heightFieldFactory() throws IOException {
-		String urlString = DEMQueryBuilder.startBuilding(DEMConnection.Server.MIKES_DEM.getURL())
-				.withLat1((float) header.minY())
-				.withLat2((float) header.maxY())
-				.withLng1((float) header.minX())
-				.withLng2((float) header.maxX())
-				.withNumLats(numLats)
-				.withNumLngs(numLngs)
-			.build();
-		logger.info("Connecting to DEM server with Query {}. This will take awhile...", 
-			urlString);
-		DEMConnection connection = new DEMConnection(urlString);
-		logger.info("DEM data received, begin parsing...");
-		return new DEMHeightField(connection);
-	}
+	
 
 	private Coordinate[] addZ(Coordinate[] source) {
 		final int length = source.length;

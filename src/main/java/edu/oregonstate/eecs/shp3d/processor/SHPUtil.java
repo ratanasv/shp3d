@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.files.ShpFiles;
 import org.geotools.data.shapefile.shp.ShapefileException;
@@ -19,6 +21,9 @@ import edu.oregonstate.eecs.shp3d.App;
 
 
 public final class SHPUtil {
+	private static Logger logger = LogManager.getLogger();
+	private static final int numLats = 2048;
+	private static final int numLngs = 2048;
 	
 	public static SimpleFeatureSource getSource(File shpFile) throws IOException {
 		ShapefileDataStore store = new ShapefileDataStore(shpFile.toURI().toURL());
@@ -47,16 +52,31 @@ public final class SHPUtil {
 		return header;
 	}
 	
-	
+
+	static HeightField heightFieldFactory(ShapefileHeader header) throws IOException {
+		String urlString = DEMQueryBuilder.startBuilding(DEMConnection.Server.MIKES_DEM.getURL())
+				.withLat1((float) header.minY())
+				.withLat2((float) header.maxY())
+				.withLng1((float) header.minX())
+				.withLng2((float) header.maxX())
+				.withNumLats(numLats)
+				.withNumLngs(numLngs)
+			.build();
+		logger.info("Connecting to DEM server with Query {}. This will take awhile...", 
+			urlString);
+		DEMConnection connection = new DEMConnection(urlString);
+		logger.info("DEM data received, begin parsing...");
+		return new DEMHeightField(connection);
+	}
 	
 	public static void fillWithBogusZ(
 			final SimpleFeatureSource source, 
 			final ShapefileHeader header,
 			final File outputFile) throws IOException {
 		
-		
 		Pipeliner pipe = new Pipeliner(source);
-		ZWriterVisitor visitor = new ZWriterVisitor(header, outputFile);
+		HeightField heightField = heightFieldFactory(header);
+		ZWriterVisitor visitor = new ZWriterVisitor(header, outputFile, heightField);
 		pipe.start(visitor);
 		ShapefileHeaderZRepair zHeaderRepair = new ShapefileHeaderZRepair.Builder()
 				.withMinZ(visitor.getMinZ())
