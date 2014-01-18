@@ -53,7 +53,7 @@ public final class SHPUtil {
 	}
 	
 
-	static HeightField heightFieldFactory(ShapefileHeader header) throws IOException {
+	static DEMConnection demConnectionFactory(ShapefileHeader header) throws IOException {
 		String urlString = DEMQueryBuilder.startBuilding(DEMConnection.Server.MIKES_DEM.getURL())
 				.withLat1((float) header.minY())
 				.withLat2((float) header.maxY())
@@ -65,17 +65,19 @@ public final class SHPUtil {
 		logger.info("Connecting to DEM server with Query {}. This will take awhile...", 
 			urlString);
 		DEMConnection connection = new DEMConnection(urlString);
-		logger.info("DEM data received, begin parsing...");
-		return new DEMHeightField(connection);
+		return connection;
 	}
 	
-	public static void fillWithBogusZ(
+	
+	public static void fillWithDEMHeights(
 			final SimpleFeatureSource source, 
 			final ShapefileHeader header,
 			final File outputFile) throws IOException {
 		
 		Pipeliner pipe = new Pipeliner(source);
-		HeightField heightField = heightFieldFactory(header);
+		DEMConnection connection = demConnectionFactory(header);
+		logger.info("DEM data received, begin parsing...");
+		HeightField heightField = new DEMHeightField(connection);
 		ZWriterVisitor visitor = new ZWriterVisitor(header, outputFile, heightField);
 		pipe.start(visitor);
 		ShapefileHeaderZRepair zHeaderRepair = new ShapefileHeaderZRepair.Builder()
@@ -85,5 +87,6 @@ public final class SHPUtil {
 		zHeaderRepair.writeToFile(outputFile);
 		File shxFile = new File(App.changeExtension(outputFile.toString(), ".shx"));
 		zHeaderRepair.writeToFile(shxFile);
+		
 	}
 }

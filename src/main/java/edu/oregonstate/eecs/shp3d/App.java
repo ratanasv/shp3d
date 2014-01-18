@@ -76,7 +76,7 @@ public class App  {
 		
 		ShapefileHeader headerLatlong = SHPUtil.getShapefileHeader(latlongFile);
 		final SimpleFeatureSource latlongSource = SHPUtil.getSource(latlongFile);
-		SHPUtil.fillWithBogusZ(latlongSource, headerLatlong, newSHPFile);
+		SHPUtil.fillWithDEMHeights(latlongSource, headerLatlong, newSHPFile);
 		logger.info("All done!");
 	}
 
