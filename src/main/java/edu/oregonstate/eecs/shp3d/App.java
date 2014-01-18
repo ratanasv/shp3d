@@ -1,6 +1,7 @@
 package edu.oregonstate.eecs.shp3d;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.commons.cli.ParseException;
@@ -13,12 +14,19 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 
 
+import edu.oregonstate.eecs.shp3d.cppinterface.CallCppProcess;
 import edu.oregonstate.eecs.shp3d.dialog.InputSHPFileDialog;
 import edu.oregonstate.eecs.shp3d.dialog.OutputSHPFileDialog;
+import edu.oregonstate.eecs.shp3d.processor.DEMConnection;
+import edu.oregonstate.eecs.shp3d.processor.DEMHeightField;
+import edu.oregonstate.eecs.shp3d.processor.DEMQueryBuilder;
+import edu.oregonstate.eecs.shp3d.processor.HeightField;
 import edu.oregonstate.eecs.shp3d.processor.SHPUtil;
 
 public class App  {
 	private static Logger logger = LogManager.getLogger();
+	private static final int numLats = 2048;
+	private static final int numLngs = 2048;
 	
 	public static String changeExtension(String shpFile, String extension) {
 		if (extension.indexOf(".") == -1) {
@@ -32,6 +40,28 @@ public class App  {
 		return FilenameUtils.getFullPath(base) + FilenameUtils.getBaseName(base) + extra +
 				"." + FilenameUtils.getExtension(base);
 	}
+	
+	static DEMConnection demConnectionFactory(ShapefileHeader header) throws IOException {
+		String urlString = DEMQueryBuilder.startBuilding(DEMConnection.Server.MIKES_DEM.getURL())
+				.withLat1((float) header.minY())
+				.withLat2((float) header.maxY())
+				.withLng1((float) header.minX())
+				.withLng2((float) header.maxX())
+				.withNumLats(numLats)
+				.withNumLngs(numLngs)
+			.build();
+		logger.info("Connecting to DEM server with Query {}. This will take awhile...", 
+			urlString);
+		DEMConnection connection = new DEMConnection(urlString);
+		return connection;
+	}
+	
+	private static void writeToFile(File outFile, byte[] data) throws IOException {
+		FileOutputStream out = new FileOutputStream(outFile);
+		out.write(data);
+		out.close();
+	}
+	
 
 
 	public static void main( String[] args ) 
@@ -65,10 +95,10 @@ public class App  {
 		
 		final SimpleFeatureSource source = SHPUtil.getSource(existingSHPFile);
 		
+		final String fullPathBaseName = FilenameUtils.getFullPath(newSHPFile.toString()) + 
+				FilenameUtils.getBaseName(existingSHPFile.toString());
+		final String latlongFileString = fullPathBaseName + "Latlong" + ".shp";
 		
-		String latlongFileString = FilenameUtils.getFullPath(newSHPFile.toString()) + 
-				FilenameUtils.getBaseName(existingSHPFile.toString()) + 
-				"Latlong" + ".shp";
 		
 		File latlongFile = new File(latlongFileString);
 		logger.info("Projecting to Lat/Long...");
@@ -76,7 +106,21 @@ public class App  {
 		
 		ShapefileHeader headerLatlong = SHPUtil.getShapefileHeader(latlongFile);
 		final SimpleFeatureSource latlongSource = SHPUtil.getSource(latlongFile);
-		SHPUtil.fillWithDEMHeights(latlongSource, headerLatlong, newSHPFile);
+		
+		DEMConnection connection = demConnectionFactory(headerLatlong);
+		logger.info("DEM data received, begin parsing...");
+		HeightField heightField = new DEMHeightField(connection);
+		
+		
+		SHPUtil.fillWithDEMHeights(latlongSource, headerLatlong, newSHPFile, heightField);
+		File xtrFile = new File(fullPathBaseName + ".xtr");
+		writeToFile(xtrFile, connection.getByteArray());
+		
+		CallCppProcess cppProcess = new CallCppProcess(fullPathBaseName + "Normals.jpg",
+				xtrFile.toString(),
+				fullPathBaseName + ".ttt", 
+				newSHPFile.toString());
+		cppProcess.run();
 		logger.info("All done!");
 	}
 

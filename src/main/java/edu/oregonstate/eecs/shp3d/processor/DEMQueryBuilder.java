@@ -11,7 +11,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
-final class DEMQueryBuilder {
+public final class DEMQueryBuilder {
 	private String baseURL;
 	private Map<QueryParameter, Object> parameters; 
 	
@@ -43,42 +43,42 @@ final class DEMQueryBuilder {
 		this.baseURL = baseURL;
 	}
 	
-	static DEMQueryBuilder startBuilding(String baseURL) {
+	public static DEMQueryBuilder startBuilding(String baseURL) {
 		DEMQueryBuilder newInstance = new DEMQueryBuilder(baseURL);
 		return newInstance;
 	}
 	
-	DEMQueryBuilder withNumLats(int num) {
+	public DEMQueryBuilder withNumLats(int num) {
 		parameters.put(QueryParameter.NUM_LATS, new Integer(num));
 		return this;
 	}
 	
-	DEMQueryBuilder withNumLngs(int num) {
+	public DEMQueryBuilder withNumLngs(int num) {
 		parameters.put(QueryParameter.NUM_LNGS, new Integer(num));
 		return this;
 	}
 
-	DEMQueryBuilder withLat1(float num) {
+	public DEMQueryBuilder withLat1(float num) {
 		parameters.put(QueryParameter.LAT1, new Float(num));
 		return this;
 	}
 	
-	DEMQueryBuilder withLat2(float num) {
+	public DEMQueryBuilder withLat2(float num) {
 		parameters.put(QueryParameter.LAT2, new Float(num));
 		return this;
 	}
 	
-	DEMQueryBuilder withLng1(float num) {
+	public DEMQueryBuilder withLng1(float num) {
 		parameters.put(QueryParameter.LNG1, new Float(num));
 		return this;
 	}
 	
-	DEMQueryBuilder withLng2(float num) {
+	public DEMQueryBuilder withLng2(float num) {
 		parameters.put(QueryParameter.LNG2, new Float(num));
 		return this;
 	}
 	
-	String build() {
+	public String build() {
 		final List<NameValuePair> params = new ArrayList<NameValuePair>();
 		for (QueryParameter param : QueryParameter.values()) {
 			if (parameters.get(param) == null ) {

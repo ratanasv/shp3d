@@ -6,10 +6,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-final class DEMConnection {
+public final class DEMConnection {
 	private final byte[] byteArray;
 
-	static enum Server {
+	public static enum Server {
 		MIKES_DEM("http://maverick.coas.oregonstate.edu:11300/terrainextraction.ashx?");
 
 		private final String urlString;
@@ -18,13 +18,13 @@ final class DEMConnection {
 			this.urlString = urlString;
 		}
 
-		String getURL() {
+		public String getURL() {
 			return urlString;
 		}
 
 	}
 
-	DEMConnection(final String urlString) throws IOException {
+	public DEMConnection(final String urlString) throws IOException {
 		URL url = new URL(urlString);
 		URLConnection connection = url.openConnection();
 		InputStream in = connection.getInputStream();
@@ -45,7 +45,7 @@ final class DEMConnection {
 		byteArray = output.toByteArray();
 	}
 
-	byte[] getByteArray() {
+	public byte[] getByteArray() {
 		return byteArray;
 	}
 }

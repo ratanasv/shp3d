@@ -24,8 +24,7 @@ import edu.oregonstate.eecs.shp3d.App;
 
 public final class SHPUtil {
 	private static Logger logger = LogManager.getLogger();
-	private static final int numLats = 2048;
-	private static final int numLngs = 2048;
+
 	
 	public static SimpleFeatureSource getSource(File shpFile) throws IOException {
 		ShapefileDataStore store = new ShapefileDataStore(shpFile.toURI().toURL());
@@ -54,38 +53,14 @@ public final class SHPUtil {
 		return header;
 	}
 	
-
-	static DEMConnection demConnectionFactory(ShapefileHeader header) throws IOException {
-		String urlString = DEMQueryBuilder.startBuilding(DEMConnection.Server.MIKES_DEM.getURL())
-				.withLat1((float) header.minY())
-				.withLat2((float) header.maxY())
-				.withLng1((float) header.minX())
-				.withLng2((float) header.maxX())
-				.withNumLats(numLats)
-				.withNumLngs(numLngs)
-			.build();
-		logger.info("Connecting to DEM server with Query {}. This will take awhile...", 
-			urlString);
-		DEMConnection connection = new DEMConnection(urlString);
-		return connection;
-	}
-	
-	private static void writeToFile(File outFile, byte[] data) throws IOException {
-		FileOutputStream out = new FileOutputStream(outFile);
-		out.write(data);
-		out.close();
-	}
-	
-	
 	public static void fillWithDEMHeights(
 			final SimpleFeatureSource source, 
 			final ShapefileHeader header,
-			final File outputFile) throws IOException {
+			final File outputFile,
+			final HeightField heightField) throws IOException {
 		
 		Pipeliner pipe = new Pipeliner(source);
-		DEMConnection connection = demConnectionFactory(header);
-		logger.info("DEM data received, begin parsing...");
-		HeightField heightField = new DEMHeightField(connection);
+		
 		ZWriterVisitor visitor = new ZWriterVisitor(header, outputFile, heightField);
 		pipe.start(visitor);
 		ShapefileHeaderZRepair zHeaderRepair = new ShapefileHeaderZRepair.Builder()
@@ -96,7 +71,6 @@ public final class SHPUtil {
 		File shxFile = new File(App.changeExtension(outputFile.toString(), ".shx"));
 		zHeaderRepair.writeToFile(shxFile);
 		
-		File xtrFile = new File(App.changeExtension(outputFile.toString(), ".xtr"));
-		writeToFile(xtrFile, connection.getByteArray());
+		
 	}
 }

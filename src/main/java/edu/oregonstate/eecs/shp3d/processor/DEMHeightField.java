@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 
-final class DEMHeightField implements HeightField {
+public final class DEMHeightField implements HeightField {
 	class XTRHeader {
 		final float maxLat;
 		final float maxLng;
@@ -62,7 +62,7 @@ final class DEMHeightField implements HeightField {
 	private final List<Float> heights;
 	private final XTRHeader xtrHeader;
 
-	DEMHeightField(DEMConnection connection) throws IOException {
+	public DEMHeightField(DEMConnection connection) throws IOException {
 		byte[] byteArray = connection.getByteArray();
 		
 		final int splitLoc = getFormFeedLocation(byteArray); 
