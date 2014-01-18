@@ -3,8 +3,12 @@ package edu.oregonstate.eecs.shp3d;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
 
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.geotools.data.shapefile.shp.ShapefileException;
@@ -82,7 +86,7 @@ public class SHPInfo {
 			existingSHPFile = inputDialog.getFile();
 		}
 		logger.info("Input SHP file = {} ", existingSHPFile);
-		
+
 		SimpleFeatureSource source = SHPUtil.getSource(existingSHPFile);
 		SimpleFeatureCollection collection = source.getFeatures();
 

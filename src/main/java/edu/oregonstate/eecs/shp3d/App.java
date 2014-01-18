@@ -3,6 +3,7 @@ package edu.oregonstate.eecs.shp3d;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
@@ -65,7 +66,7 @@ public class App  {
 
 
 	public static void main( String[] args ) 
-			throws IOException, NoSuchAuthorityCodeException, FactoryException 
+			throws IOException, NoSuchAuthorityCodeException, FactoryException, URISyntaxException 
 	{
 		System.out.println( "shp3d..." );
 		try {
