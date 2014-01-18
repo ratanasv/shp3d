@@ -1,6 +1,8 @@
 package edu.oregonstate.eecs.shp3d.processor;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
@@ -68,6 +70,12 @@ public final class SHPUtil {
 		return connection;
 	}
 	
+	private static void writeToFile(File outFile, byte[] data) throws IOException {
+		FileOutputStream out = new FileOutputStream(outFile);
+		out.write(data);
+		out.close();
+	}
+	
 	
 	public static void fillWithDEMHeights(
 			final SimpleFeatureSource source, 
@@ -88,5 +96,7 @@ public final class SHPUtil {
 		File shxFile = new File(App.changeExtension(outputFile.toString(), ".shx"));
 		zHeaderRepair.writeToFile(shxFile);
 		
+		File xtrFile = new File(App.changeExtension(outputFile.toString(), ".xtr"));
+		writeToFile(xtrFile, connection.getByteArray());
 	}
 }
