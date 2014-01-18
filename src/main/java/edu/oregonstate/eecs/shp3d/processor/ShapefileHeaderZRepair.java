@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class ShapefileHeaderZRepair {
 	
@@ -40,12 +41,13 @@ public class ShapefileHeaderZRepair {
 	}
 	
 	public void writeToFile(File shpFile) throws IOException {
-		RandomAccessFile file = new RandomAccessFile(shpFile, "rw");;
+		RandomAccessFile file = new RandomAccessFile(shpFile, "rw");
 		try {
 			if (file.getFilePointer() != 0) {
 				throw new RuntimeException("file pointer not initialized to zero");
 			}
 			ByteBuffer byteBuffer = ByteBuffer.allocate(16);
+			byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 			byteBuffer.putDouble(minZ);
 			byteBuffer.putDouble(maxZ);
 			byteBuffer.rewind();

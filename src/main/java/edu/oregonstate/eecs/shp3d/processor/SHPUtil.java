@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.files.ShpFiles;
 import org.geotools.data.shapefile.shp.ShapefileException;
@@ -12,6 +13,8 @@ import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
+
+import edu.oregonstate.eecs.shp3d.App;
 
 
 
@@ -60,5 +63,7 @@ public final class SHPUtil {
 				.withMaxZ(visitor.getMaxZ())
 			.build();
 		zHeaderRepair.writeToFile(outputFile);
+		File shxFile = new File(App.changeExtension(outputFile.toString(), ".shx"));
+		zHeaderRepair.writeToFile(shxFile);
 	}
 }

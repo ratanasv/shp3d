@@ -20,7 +20,7 @@ import edu.oregonstate.eecs.shp3d.processor.SHPUtil;
 public class App  {
 	private static Logger logger = LogManager.getLogger();
 	
-	static String changeExtension(String shpFile, String extension) {
+	public static String changeExtension(String shpFile, String extension) {
 		if (extension.indexOf(".") == -1) {
 			throw new IllegalArgumentException("does not contain a period");
 		}
