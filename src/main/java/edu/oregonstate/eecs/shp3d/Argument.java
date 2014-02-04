@@ -21,6 +21,7 @@ enum Argument {
 	PRINT_ATTRIBUTE("print_attribute", "print attribute info", false),
 	PRINT_SCHEMA("print_schema", "print schema", false),
 	PRINT_HEADER("print_header", "print header", false),
+	DEM_RESOLUTION("dem_resolution", "specify the resolution of DEM", true),
 	CHECK("check", "check shapefile for correctness", false);
 
 
@@ -75,6 +76,12 @@ enum Argument {
 	}
 
 	String getValue() {
+		if (!isActive()) {
+			throw new RuntimeException(stringRep + " is never specified by the user.");
+		}
+		if (!hasValue){
+			throw new UnsupportedOperationException(stringRep + " is not supposed to have a value");
+		}
 		return this.value;
 	}
 

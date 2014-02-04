@@ -43,13 +43,19 @@ public class App  {
 	}
 	
 	static DEMConnection demConnectionFactory(ShapefileHeader header) throws IOException {
+		final int resolution;
+		if (Argument.DEM_RESOLUTION.isActive()) {
+			resolution = Integer.parseInt(Argument.DEM_RESOLUTION.getValue());
+		} else {
+			resolution = 2048;
+		}
 		String urlString = DEMQueryBuilder.startBuilding(DEMConnection.Server.MIKES_DEM.getURL())
 				.withLat1((float) header.minY())
 				.withLat2((float) header.maxY())
 				.withLng1((float) header.minX())
 				.withLng2((float) header.maxX())
-				.withNumLats(numLats)
-				.withNumLngs(numLngs)
+				.withNumLats(resolution)
+				.withNumLngs(resolution)
 			.build();
 		logger.info("Connecting to DEM server with Query {}. This will take awhile...", 
 			urlString);
