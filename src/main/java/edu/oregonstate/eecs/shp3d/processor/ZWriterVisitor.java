@@ -68,9 +68,6 @@ public class ZWriterVisitor extends SHPWriterVisitor implements PipelineElementV
 		GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory( null );
 		MultiPolygon sourceMultiPolygon = (MultiPolygon)sourceFeature.getDefaultGeometry();
 		Polygon outPolygons[] = new Polygon[sourceMultiPolygon.getNumGeometries()];
-		if (sourceMultiPolygon.getNumGeometries() != 1) {
-			throw new RuntimeException("wtf");
-		}
 		for (int i=0; i<sourceMultiPolygon.getNumGeometries(); i++) {
 			Polygon sourcePolygon = (Polygon) sourceMultiPolygon.getGeometryN(i);
 
