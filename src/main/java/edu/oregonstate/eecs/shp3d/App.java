@@ -120,12 +120,15 @@ public class App  {
 		
 		
 		SHPUtil.fillWithDEMHeights(latlongSource, headerLatlong, newSHPFile, heightField);
+		
 		File xtrFile = new File(fullPathBaseName + ".xtr");
 		writeToFile(xtrFile, connection.getByteArray());
 		
-		CallCppProcess cppProcess = new CallCppProcess(fullPathBaseName + "Normals.jpg",
+		final String fullPathNewBaseName = FilenameUtils.getFullPath(newSHPFile.toString()) + 
+				FilenameUtils.getBaseName(newSHPFile.toString());
+		CallCppProcess cppProcess = new CallCppProcess(fullPathNewBaseName + "Normals.jpg",
 				xtrFile.toString(),
-				fullPathBaseName + ".ttt", 
+				fullPathNewBaseName + ".ttt", 
 				newSHPFile.toString());
 		cppProcess.run();
 		logger.info("All done!");
